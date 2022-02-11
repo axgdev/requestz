@@ -19,7 +19,7 @@ fn SocketWrapper(comptime Engine: type) type {
         pub const Writer = std.io.Writer(Self, Engine.Socket.SendError, write);
         const TlsContext = tls.Client(Engine.Socket.Reader, Engine.Socket.Writer, tls.ciphersuites.all, true);
 
-        pub fn connect(allocator: *Allocator, uri: Uri) !Self {
+        pub fn connect(allocator: Allocator, uri: Uri) !Self {
             var defaultPort: u16 = if (std.mem.eql(u8, uri.scheme, "https")) 443 else 80;
             var port: u16 = uri.port orelse defaultPort;
             var socket = switch (uri.host) {
@@ -50,11 +50,11 @@ fn SocketWrapper(comptime Engine: type) type {
             return self.target.send(buffer);
         }
 
-        fn connectToHost(allocator: *Allocator, host: []const u8, port: u16) !Engine.Socket {
+        fn connectToHost(allocator: Allocator, host: []const u8, port: u16) !Engine.Socket {
             return try Engine.connectToHost(allocator, host, port, .tcp);
         }
 
-        fn connectToAddress(_: *Allocator, address: Address) !Engine.Socket {
+        fn connectToAddress(_: Allocator, address: Address) !Engine.Socket {
             switch (address.any.family) {
                 std.os.AF.INET => {
                     const bytes = @ptrCast(*const [4]u8, &address.in.sa.addr);
@@ -75,7 +75,7 @@ fn SocketWrapper(comptime Engine: type) type {
 const ZigNetwork = struct {
     const Socket = network.Socket;
 
-    fn connectToHost(allocator: *Allocator, host: []const u8, port: u16, protocol: network.Protocol) !Socket {
+    fn connectToHost(allocator: Allocator, host: []const u8, port: u16, protocol: network.Protocol) !Socket {
         return try network.connectToHost(allocator, host, port, protocol);
     }
 };
@@ -83,7 +83,7 @@ const ZigNetwork = struct {
 const NetworkMock = struct {
     const Socket = InMemorySocket;
 
-    pub fn connectToHost(allocator: *Allocator, host: []const u8, port: u16, protocol: network.Protocol) !Socket {
+    pub fn connectToHost(allocator: Allocator, host: []const u8, port: u16, protocol: network.Protocol) !Socket {
         _ = allocator;
         _ = host;
         _ = port;

@@ -9,7 +9,7 @@ const ValueTree = std.json.ValueTree;
 const Connection = @import("connection.zig").Connection;
 
 pub const Response = struct {
-    allocator: *Allocator,
+    allocator: Allocator,
     buffer: []const u8,
     status: StatusCode,
     version: Version,
@@ -33,7 +33,7 @@ pub const Response = struct {
 pub fn StreamingResponse(comptime ConnectionType: type) type {
     return struct {
         const Self = @This();
-        allocator: *Allocator,
+        allocator: Allocator,
         buffer: []const u8,
         connection: *ConnectionType,
         headers: Headers,

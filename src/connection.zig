@@ -23,13 +23,13 @@ pub fn Connection(comptime SocketType: type) type {
         const Writer = std.io.Writer(*Self, WriterError, write);
         const WriterError = SocketType.Writer.Error;
 
-        allocator: *Allocator,
+        allocator: Allocator,
         protocol: Protocol,
         socket: SocketType,
         state: H11Client,
         tls_context: TlsContext = undefined,
 
-        pub fn connect(allocator: *Allocator, uri: Uri) !*Self {
+        pub fn connect(allocator: Allocator, uri: Uri) !*Self {
             var connection = try allocator.create(Self);
             connection.allocator = allocator;
             connection.protocol = .Http;

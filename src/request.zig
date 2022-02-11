@@ -17,7 +17,7 @@ const Body = union(BodyType) {
 };
 
 pub const Request = struct {
-    allocator: *Allocator,
+    allocator: Allocator,
     headers: Headers,
     ip: ?[]const u8,
     method: Method,
@@ -40,7 +40,7 @@ pub const Request = struct {
         }
     }
 
-    pub fn init(allocator: *Allocator, method: Method, uri: Uri, options: anytype) !Request {
+    pub fn init(allocator: Allocator, method: Method, uri: Uri, options: anytype) !Request {
         var path = if (uri.path.len != 0) uri.path else "/";
         var request = Request{
             .allocator = allocator,
