@@ -42,6 +42,7 @@ pub const Request = struct {
 
     pub fn init(allocator: Allocator, method: Method, uri: Uri, options: anytype) !Request {
         var path = if (uri.path.len != 0) uri.path else "/";
+        path = if (uri.query.len != 0) try std.mem.concat(allocator, u8, &[_][]const u8{ path, "?", uri.query }) else path;
         var request = Request{
             .allocator = allocator,
             .body = Body.Empty,
@@ -120,6 +121,14 @@ test "Request - Path defaults to /" {
     defer request.deinit();
 
     try expectEqualStrings(request.path, "/");
+}
+
+test "Request - Path with route and query parameters" {
+    const uri = try Uri.parse("http://ziglang.org/news?key1=value1&key2=value2", false);
+    var request = try Request.init(std.testing.allocator, .Get, uri, .{});
+    defer request.deinit();
+
+    try expectEqualStrings(request.path, "/news?key1=value1&key2=value2");
 }
 
 test "Request - With user headers" {
